@@ -1,0 +1,160 @@
+
+
+  Database Connection Code
+
+   internal class DatabaseConnection
+{
+    private MySqlConnection connection;
+
+    public DatabaseConnection()
+    {
+        string connectionString = "Server=127.0.0.1;Database=TicketDB;Uid=root;Pwd=YourPassword;";
+        connection = new MySqlConnection(connectionString);
+    }
+
+    public MySqlConnection GetConnection()
+    {
+        return connection;
+    }
+
+
+}
+
+
+using MySql.Data.MySqlClient;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace TrainTicketManagement
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+            TicketData();
+        }
+
+        private void btnInsert_Click(object sender, EventArgs e)
+        {
+            int id = int.Parse(textBox1.Text);
+            string passengername = textBox2.Text;
+            string from = textBox3.Text;
+            string to = textBox4.Text;
+            DateTime date = dateTimePicker1.Value.Date;
+            decimal departtime = decimal.Parse(textBox5.Text);
+            string seat = textBox6.Text;
+            string trainname = comboBox1.SelectedItem.ToString();
+
+            string query = "INSERT INTO tickets (`ID`, `PassengerName`, `From`, `To`, `Date`, `DepartTime`, `Seat`, `TrainName`) VALUES (@ID, @PassengerName, @From, @To, @Date, @DepartTime, @Seat, @TrainName)";
+
+            using (MySqlConnection conn = new DatabaseConnection().GetConnection())
+            {
+                conn.Open();
+                using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@ID", id);
+                    cmd.Parameters.AddWithValue("@PassengerName", passengername);
+                    cmd.Parameters.AddWithValue("@From", from);
+                    cmd.Parameters.AddWithValue("@To", to);
+                    cmd.Parameters.AddWithValue("@Date", date);
+                    cmd.Parameters.AddWithValue("@DepartTime", departtime);
+                    cmd.Parameters.AddWithValue("@Seat", seat);
+                    cmd.Parameters.AddWithValue("@TrainName", trainname);
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+            MessageBox.Show("Record Inserted Successfully");
+            TicketData();
+        }
+
+        private void TicketData()
+        {
+            string query = "SELECT * FROM tickets";
+
+            using (MySqlConnection conn = new DatabaseConnection().GetConnection())
+            {
+                conn.Open();
+                using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                {
+                    using (MySqlDataAdapter adapter = new MySqlDataAdapter(cmd))
+                    {
+                        DataTable dataTable = new DataTable();
+                        adapter.Fill(dataTable);
+                        dataGridView1.DataSource = dataTable;
+                    }
+                }
+            }
+
+        }
+
+        private void btnUpdate_Click(object sender, EventArgs e)
+        {
+            int id = int.Parse(textBox1.Text);
+            string passengername = textBox2.Text;
+            string from = textBox3.Text;
+            string to = textBox4.Text;
+            DateTime date = dateTimePicker1.Value.Date;
+            decimal departtime = decimal.Parse(textBox5.Text);
+            string seat = textBox6.Text;
+            string trainname = comboBox1.SelectedItem.ToString();
+
+            string query = "UPDATE tickets SET PassengerName=@PassengerName, `From`=@From, `To`=@To, `Date`=@Date, `DepartTime`=@DepartTime, `Seat`=@Seat, `TrainName`=@TrainName WHERE `ID`=@ID";
+
+            using (MySqlConnection conn = new DatabaseConnection().GetConnection())
+            {
+                conn.Open();
+                using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@ID", id);
+                    cmd.Parameters.AddWithValue("@PassengerName", passengername);
+                    cmd.Parameters.AddWithValue("@From", from);
+                    cmd.Parameters.AddWithValue("@To", to);
+                    cmd.Parameters.AddWithValue("@Date", date);
+                    cmd.Parameters.AddWithValue("@DepartTime", departtime);
+                    cmd.Parameters.AddWithValue("@Seat", seat);
+                    cmd.Parameters.AddWithValue("@TrainName", trainname);
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+            MessageBox.Show("Record Updated Successfully");
+            TicketData();
+        }
+
+        private void btnDelete_Click(object sender, EventArgs e)
+        {
+            int id = int.Parse(textBox1.Text);
+            
+
+            string query = "DELETE FROM tickets WHERE ID=@ID";
+
+            using (MySqlConnection conn = new DatabaseConnection().GetConnection())
+            {
+                conn.Open();
+                using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@ID", id);
+                    
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+            MessageBox.Show("Record Deleted Successfully");
+            TicketData();
+        }
+    }
+}
+
+  
